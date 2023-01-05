@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head xmlns:th="http://www.thymeleaf.org">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+
+
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    <script src="../../static/js/bootstrap.min.js"></script>
+
+
+</head>
+<body>
+
+<div class="container-fluid">
+
+
+    <div style="width: 100%;height: 40px"></div>
+    <!--查询功能-->
+    <label for="name1" style="font-size: 23px;display: inline-block">姓名:</label>
+    <input type="text" class="form-control" id="name1" placeholder="姓名" style="width: 20%;height: 40px;display: inline-block">
+    <button type="button" class="btn btn-primary btn-lg" onclick="searchStudent()">查询</button>
+    <button type="button" class="btn btn-primary btn-lg" onclick="loadTable()">返回</button>
+
+    <!-- 查询 -->
+    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal" onclick="preAdd()">
+        新增学生
+    </button>
+
+    <div style="font-size: 30px;text-align: center" >全体学生信息</div>
+    <table class="table table-hover" style="width: 98%;margin:0 auto" >
+        <thead>
+        <tr class="bg-primary">
+            <th style="width: 5%;text-align: center;font-size: 28px">#</th>
+            <th style="width: 20%;text-align: center;font-size: 28px">学号</th>
+            <th style="width: 15%;text-align: center;font-size: 28px">姓名</th>
+            <th style="width: 15%;text-align: center;font-size: 28px">性别</th>
+            <th style="width: 10%;text-align: center;font-size: 28px">成绩</th>
+            <th style="width: 35%;text-align: center;font-size: 28px">操作</th>
+        </tr>
+        </thead>
+        <tbody id="studentTb">
+        </tbody>
+    </table>
+<!--    <div style="font-size: 25px">查询学生信息</div>-->
+<!--    <form class="form-inline"  th:action="@{/student/{name}}" method="get">-->
+<!--        <div class="form-group">-->
+<!--            <label for="exampleInputName2">姓名</label>-->
+<!--            <input type="text" class="form-control" id="exampleInputName2" placeholder="name"  name="name">-->
+<!--        </div>-->
+<!--        <button type="submit" class="btn btn-default">查询</button>-->
+<!--    </form>-->
+
+<!--    <table class="table table-hover">-->
+<!--        <thead>-->
+<!--        <tr class="bg-success">-->
+<!--            <th>#</th>-->
+<!--            <th>学号</th>-->
+<!--            <th>姓名</th>-->
+<!--            <th>性别</th>-->
+<!--            <th>成绩</th>-->
+<!--        </tr>-->
+<!--        </thead>-->
+<!--        <tbody>-->
+<!--        <tr data-th-each="student : ${data1}">-->
+<!--            <th scope="row" data-th-text="${student.id}"></th>-->
+<!--            <td data-th-text="${student.no}"></td>-->
+<!--            <td data-th-text="${student.name}"></td>-->
+<!--            <td data-th-text="${student.sex}"></td>-->
+<!--            <td data-th-text="${student.score}"></td>-->
+<!--        </tr>-->
+<!--        </tbody>-->
+<!--    </table>-->
+
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="myModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">学生信息</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formStudent">
+                    <input hidden="hidden" id="id" name="id" />
+                    <div class="form-group">
+                        <label for="no">学号:</label>
+                        <input type="text" class="form-control" id="no" placeholder="学号" name="no">
+                    </div>
+                    <div class="form-group">
+                        <label for="name">姓名:</label>
+                        <input type="text" class="form-control" id="name" placeholder="姓名" name="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密码:</label>
+                        <input type="password" class="form-control" id="password" placeholder="密码" name="password">
+                    </div>
+                    <div class="form-group">
+                        <label for="sex">性别:</label>
+                        <select class="form-control" id="sex" name="sex">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="score">得分:</label>
+                        <input type="text" class="form-control" id="score" placeholder="score" name="score">
+                    </div>
+                </form>
+                <!--表单结束 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveStudent()">保存</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<script src="/js/bootstrap.js"></script>
+<script type="text/javascript">
+    function searchStudent(){
+        var name=$("#name1").val();
+        if (name == null || name == ""){
+            alert("输入数据为空！")
+        }
+        else{
+            $.ajax({
+                url:"/webapi/student/search/"+name,
+                type:'Get',
+                data:name
+            }).done(function (rs){
+                var len=rs.length;
+                var html="";
+                for(var i=0;i<len;i++){
+                    var item=rs[i];
+                    html+="<tr>"
+                        +"<td style='font-size: 26px;text-align: center'>"+item.id+"</td>"
+                        +"<td style='font-size: 26px;text-align: center'>"+item.no+"</td>"
+                        +"<td style='font-size: 26px;text-align: center'>"+item.name+"</td>"
+                        +"<td style='font-size: 26px;text-align: center'>"+item.sex+"</td>"
+                        +"<td style='font-size: 26px;text-align: center'>"+item.score+"</td>"
+                        +"<td style='text-align: center'> <button type=\"button\" class=\"btn btn-primary\" href='#' onClick='editStudent("+item.id+")'  style='display: inline-block'>编辑</button> <button type=\"button\" class=\"btn btn-danger\" href='#' onclick='deleteStudent("+item.id+")' style='display: inline-block'>删除</button> </td>"
+                        +"</tr>";
+                }
+                $("#studentTb").html(html);
+            })
+        }
+
+
+    }
+    //更新
+    function saveStudent(){
+        var data=$("#formStudent").serialize();
+
+        var id=$("#id").val();
+        if(id<1){
+            //是新增
+            $.ajax({
+                url:"/webapi/student/insert",
+                method:"post",
+                data:data
+            }).done(function (){
+
+                loadTable();
+                $('#myModal').modal('hide')
+            })
+        }else{
+            //是更新
+            $.ajax({
+                url:"/webapi/student/update",
+                method:"put",
+                data:data
+            }).done(function (){
+
+                loadTable();
+                $('#myModal').modal('hide')
+            })
+        }
+
+    }
+
+    function editStudent(id){
+        $.ajax({
+            url:'/webapi/student/get/'+id
+        }).done(function (rs){
+
+            $("#id").val(rs.id);
+            $("#no").val(rs.no);
+            $("#name").val(rs.name);
+            $("#password").val("");
+            $("#sex").val(rs.sex);
+            $("#score").val(rs.score);
+            $("#myModal").modal('show');
+        })
+    }
+
+    function deleteStudent(id){
+        if (confirm("确定删除？")){
+            $.ajax({
+                url:'/webapi/student/delete/'+id,
+                method:"delete"
+            }).done(function (){
+                loadTable();
+            })
+        }
+
+    }
+    function loadTable(){
+        $.ajax({
+            url:'/webapi/student/list'
+        }).done(function (rs){
+            var len=rs.length;
+            var html="";
+            for(var i=0;i<len;i++){
+                var item=rs[i];
+                html+="<tr>"
+                    +"<td style='font-size: 26px;text-align: center'>"+item.id+"</td>"
+                    +"<td style='font-size: 26px;text-align: center'>"+item.no+"</td>"
+                    +"<td style='font-size: 26px;text-align: center'>"+item.name+"</td>"
+                    +"<td style='font-size: 26px;text-align: center'>"+item.sex+"</td>"
+                    +"<td style='font-size: 26px;text-align: center'>"+item.score+"</td>"
+                    +"<td style='text-align: center'> <button type=\"button\" class=\"btn btn-primary\" href='#' onClick='editStudent("+item.id+")'  style='display: inline-block'>编辑</button> <button type=\"button\" class=\"btn btn-danger\" href='#' onclick='deleteStudent("+item.id+")' style='display: inline-block'>删除</button> </td>"
+                    +"</tr>";
+            }
+            $("#studentTb").html(html);
+        })
+
+
+    }
+
+    function preAdd(){
+        $("#id").val(0);//提示新增
+    }
+
+    $(function (){
+       loadTable();
+    })
+</script>
+</body>
+
+
+
+
+
+</html>
